@@ -1,99 +1,115 @@
-# vscode_balance_car
+# VS Code 平衡小车测试平台
 
-This project is a STM32F1-based test platform for a balance car / motor control application. The current code focuses on basic peripheral integration and low-level control modules, including motor PWM control, button-based enable/disable switching, battery voltage monitoring, and UART debug output.
+这是一个基于 **STM32F1** 的平衡小车／电机控制测试项目。当前代码主要用于外设联调与底层控制模块验证，包含电机 PWM 控制、按键启停、电池电压监测，以及串口调试输出。
 
-> Note: Based on the current code, this project is still in the functional verification and module development stage. It does not yet implement a complete self-balancing control algorithm and is better described as a programmable test platform.
+> 注意：项目目前仍处于功能验证和模块开发阶段，尚未实现完整的自平衡控制算法。更准确地说，它是一个可继续扩展的平衡小车控制测试平台。
 
-## Project Overview
+## 已实现功能
 
-The project uses a CMake + STM32CubeMX style structure and currently provides the following features:
+- 通过 PWM 驱动电机
+- 使用按键切换电机启用／禁用状态
+- 采样电池电压，并以 LED 指示电量状态
+- 通过 USART2 输出调试信息
+- 基于 STM32 HAL 的外设初始化与驱动封装
 
-- Motor driver control using PWM signals
-- Button-based motor enable/disable switching
-- Battery voltage sampling and status LED indication
-- USART2 debug output
-- HAL-based peripheral initialization and driver abstraction
+### 电机控制
 
-## Current Implemented Features
+- 使用 TIM1 和 TIM4 输出 PWM 信号
+- 通过 GPIO 控制左右电机的转向
+- 通过 STBY 引脚控制电机驱动器的待机和工作状态
 
-### 1. Motor Control
-- PWM output through TIM1 and TIM4
-- Direction control for left and right motors using GPIO pins
-- STBY pin control to put the motor driver into sleep or active mode
+### 按键控制
 
-### 2. Button Control
-- Reads the PA11 button input
-- Debounces the button input and toggles the motor state
-- Prints the current state through USART2
+- 读取 PA11 按键输入
+- 对按键进行消抖处理，并切换电机状态
+- 通过 USART2 输出当前状态，便于调试
 
-### 3. Battery Monitoring
-- Uses ADC1 injected conversion to sample battery voltage
-- Drives different LED levels according to battery voltage range
-- Blinks LEDs when the battery is low
+### 电池监测
 
-### 4. Debug Output
-- Sends debug information through USART2
-- Useful for observing button actions, PWM state, and voltage changes
+- 使用 ADC1 注入组转换采样电池电压
+- 根据电压区间点亮不同的 LED 电量指示
+- 电量过低时闪烁 LED 提示
 
-## Project Structure
+### 串口调试
 
-- Core/
-  - STM32 HAL initialization code and the main program entry
-- User/
-  - Application modules such as battery, button, PWM, and USART handling
-  - Test sources for basic functional validation
-- MyLib/
-  - Utility modules such as delay helpers
-- Drivers/
-  - STM32 HAL and CMSIS driver code
-- cmake/
-  - CMake and cross-compilation toolchain configuration
+- 通过 USART2 输出调试信息
+- 可用于观察按键事件、PWM 状态与电压变化
 
-## Build Instructions
+## 项目结构
 
-The project is already configured with CMake presets. Build it with:
+```text
+├─ Core/       STM32 HAL 初始化代码和主程序入口
+├─ User/       电池、按键、PWM、串口等应用模块，以及基础测试代码
+├─ MyLib/      延时、按键等通用工具模块
+├─ Drivers/    STM32 HAL 与 CMSIS 驱动代码
+└─ cmake/      CMake 与 ARM 交叉编译工具链配置
+```
+
+## 构建环境
+
+- CMake 3.22 或更高版本
+- Ninja
+- ARM GNU Toolchain（`arm-none-eabi-gcc`）
+- 可选：VS Code 与 CMake Tools 扩展
+
+## 构建项目
+
+项目已配置 CMake Preset。请在项目根目录执行：
 
 ```bash
 cmake --preset Debug
 cmake --build --preset Debug
 ```
 
-If you are using VS Code with CMake Tools, you can also select the Debug preset directly.
+也可以在 VS Code 的 CMake Tools 中直接选择 `Debug` 预设后进行配置和构建。
 
-## Flashing Instructions
+除 `Debug` 外，项目还提供以下构建预设：
 
-After building, the workspace will generate ELF/BIN outputs. You can flash them using ST-Link, OpenOCD, or STM32CubeProgrammer.
+- `RelWithDebInfo`
+- `Release`
+- `MinSizeRel`
 
-Example with OpenOCD:
+例如，构建 Release 版本：
+
+```bash
+cmake --preset Release
+cmake --build --preset Release
+```
+
+## 烧录固件
+
+构建完成后会生成 ELF 和 BIN 文件，可使用 ST-Link、OpenOCD 或 STM32CubeProgrammer 烧录到开发板。
+
+使用 OpenOCD 的示例：
 
 ```bash
 openocd -f interface/stlink.cfg -f target/stm32f1x.cfg \
   -c "program build/Debug/vscode_balance_car.elf verify reset exit"
 ```
 
-## Runtime Behavior
+## 程序运行流程
 
-On startup, the firmware initializes the peripherals, runs the PWM test routine, and then enters the main loop to continuously handle:
+上电后，固件会初始化各项外设，执行 PWM 测试程序，然后进入主循环，持续处理以下任务：
 
-- Battery monitoring
-- Button scanning
-- Motor control state updates
+- 电池电压监测
+- 按键扫描
+- 电机控制状态更新
 
-## Key Source Files
+## 关键源码
 
-- Main program: Core/Src/main.c
-- Battery handling: User/Src/app_bat.c
-- Button handling: User/Src/app_button.c
-- PWM motor control: User/Src/app_pwm.c
-- USART output: User/Src/app_usart2.c
-- PWM test routine: User/test/pwm_test.c
+- 主程序：`Core/Src/main.c`
+- 电池处理：`User/Src/app_bat.c`
+- 按键处理：`User/Src/app_button.c`
+- PWM 电机控制：`User/Src/app_pwm.c`
+- USART2 输出：`User/Src/app_usart2.c`
+- PWM 测试：`User/test/pwm_test.c`
 
-## Future Development Suggestions
+## 后续开发方向
 
-To evolve this into a real balance car control system, the next steps would typically include:
+若要将本项目发展为完整的平衡小车控制系统，建议逐步加入：
 
-- IMU sensor reading and attitude estimation
-- Angle loop and speed loop control
-- Motor encoder feedback
-- PID control implementation
-- Protection and saturation logic for unstable operation
+- IMU 传感器读取与姿态解算
+- 角度环与速度环控制
+- 电机编码器反馈
+- PID 控制算法
+- 倾倒、电压异常与输出限幅等保护机制
