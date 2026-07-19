@@ -18,6 +18,8 @@ static volatile int8_t direction_r = 1; // 右电机旋转的方向，1 - 正转
 static volatile uint64_t t0_l = 0, t1_l = 0; // 左电机编码器发生变化的时间，单位us
 static volatile uint64_t t0_r = 0, t1_r = 0; // 右电机编码器发生变化的时间，单位us
 
+static float last_speed_r = 0.0f;
+static float last_speed_l = 0.0f;
 //
 // @简介：对编码器模块进行初始化
 //
@@ -53,13 +55,24 @@ float App_Encoder_GetSpeed_L(void)
 	uint64_t t0_l_copy = t0_l;
 	uint64_t t1_l_copy = t1_l;
 	__enable_irq();//开启总中断
-	if(t0_l_copy == t1_l_copy) return 0.0f; // 防止除以0
-	if(direction_l_copy ==2 || direction_l_copy == -2) return 0.0f; // 如果发生了换向，速度为0
+	if(t0_l_copy == t1_l_copy) {
+		return last_speed_l; // 防止除以0
+	}
+	if(direction_l_copy ==2 || direction_l_copy == -2) {
+		return 0.0f; // 如果发生了换向，速度为0
+	}
+
 	uint64_t now=GetUs();
 	uint64_t dt1 = t0_l_copy - t1_l_copy;
 	uint64_t dt2 = now - t0_l_copy;
 	uint64_t T = (dt1 > dt2) ? dt1 : dt2;
-	return direction_l_copy / (T * 1.0e-6f) / 22.0f / (30613.0f / 1500.0f) * 360.0f;
+	if(T == 0) {
+		return last_speed_l;
+	} // 防止除以0
+
+	last_speed_l = direction_l_copy / (T * 1.0e-6f) / 22.0f / (30613.0f / 1500.0f) * 360.0f;
+	return last_speed_l;
+	
 }
 
 //@简介：读取右轮胎旋转的角速度，使用的T法
@@ -71,13 +84,22 @@ float App_Encoder_GetSpeed_R(void)
 	uint64_t t1_r_copy = t1_r;
 	__enable_irq();//开启总中断
 
-	if(t0_r_copy == t1_r_copy) return 0.0f; // 防止除以0
-	if(direction_r_copy ==2 || direction_r_copy == -2) return 0.0f; // 如果发生了换向，速度为0
+	if(t0_r_copy == t1_r_copy) {
+		return last_speed_r; // 防止除以0
+	}
+	if(direction_r_copy ==2 || direction_r_copy == -2) {
+		return 0.0f; // 如果发生了换向，速度为0
+	}
 	uint64_t now=GetUs();
 	uint64_t dt1 = t0_r_copy - t1_r_copy;
 	uint64_t dt2 = now - t0_r_copy;
 	uint64_t T = (dt1 > dt2) ? dt1 : dt2;
-	return direction_r_copy / (T * 1.0e-6f) / 22.0f / (30613.0f / 1500.0f) * 360.0f;
+
+	if(T == 0) {
+		return last_speed_r; // 防止除以0
+	}
+	last_speed_r = direction_r_copy / (T * 1.0e-6f) / 22.0f / (30613.0f / 1500.0f) * 360.0f;
+	return last_speed_r;
 }
 
 
@@ -97,8 +119,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		GPIO_PinState b = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15); // B相的当前电压
 		
 		//这个代码和下面注释的代码逻辑一样
-		if((a ==GPIO_PIN_SET && b ==GPIO_PIN_RESET ) || (a ==GPIO_PIN_RESET && b ==GPIO_PIN_SET))//当前轮胎反转
-		{
+		if((a ==GPIO_PIN_SET && b ==GPIO_PIN_RESET ) || (a ==GPIO_PIN_RESET && b ==GPIO_PIN_SET)) { //当前轮胎反转
 			encoder_l--;
 			if(direction_l >0)//之前轮胎正转，但是现在反转
 			{
@@ -110,8 +131,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			}
 			
 		}
-		else//当前轮胎是正转
-		{ 
+		else { //当前轮胎是正转
 			
 			encoder_l++;
 			if(direction_l <0)//之前轮胎反转，但是现在正转
@@ -160,8 +180,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		GPIO_PinState a = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3); // A相的当前电压
 		GPIO_PinState b = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_4); // B相的当前电压
 
-		if((a ==GPIO_PIN_SET && b ==GPIO_PIN_RESET ) || (a ==GPIO_PIN_RESET && b ==GPIO_PIN_SET))//现在轮胎正转
-		{
+		if((a ==GPIO_PIN_SET && b ==GPIO_PIN_RESET ) || (a ==GPIO_PIN_RESET && b ==GPIO_PIN_SET)) { //现在轮胎正转
 			encoder_r++;
 			if(direction_r <0)//之前轮胎反转，但是现在正转
 			{
@@ -173,7 +192,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 			}
 		
 		}
-		else{
+		else {
 			
 			encoder_r--;
 			if(direction_r >0)//之前轮胎正转，但是现在反转
