@@ -56,8 +56,9 @@
 
 /* External variables --------------------------------------------------------*/
 extern ADC_HandleTypeDef hadc1;
-/* USER CODE BEGIN EV */
 
+/* USER CODE BEGIN EV */
+extern __IO uint32_t ulTicks;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -187,7 +188,10 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-
+  if(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk)
+  {
+	  ulTicks++;
+  }
   /* USER CODE END SysTick_IRQn 1 */
 }
 
