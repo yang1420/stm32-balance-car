@@ -50,12 +50,14 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     User/test/bat_test.c
     User/test/pwm_test.c
+    User/test/encoder_test.c
     User/Src/app_bat.c
     User/Src/app_button.c
     User/Src/app_usart2.c
     User/Src/app_pwm.c
     MyLib/Src/button.c
     MyLib/Src/delay.c
+    User/Src/app_encoder.c
 )
 
 # Add include paths
