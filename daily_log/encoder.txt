@@ -1,0 +1,30 @@
+Encoder progress summary
+
+English:
+- Completed the basic encoder signal processing workflow, including position counting and direction judgment.
+- Implemented EXTI callback handling for encoder A/B phase changes and updated the count value based on the current level state.
+- Added position calculation for left and right wheel angles based on encoder counts and the mechanical reduction ratio.
+- Implemented speed estimation using the T-method and added a simple filter to reduce output jitter.
+- Added UART output for encoder position and speed data to facilitate debugging and visualization.
+- Resolved issues related to floating-point printing and improved the stability of serial output for debugging.
+
+中文：
+- 完成了编码器信号的基础处理流程，包括位置计数和方向判断。
+- 实现了对编码器 A/B 相变化的 EXTI 回调处理，并根据当前电平状态更新计数值。
+- 根据编码器计数和机械减速比，增加了左右轮胎角度换算。
+- 使用 T 法实现了速度估算，并增加了简单滤波以减少输出抖动。
+- 增加了编码器位置和速度数据的串口输出，方便调试和可视化观察。
+- 解决了浮点打印相关问题，并提高了串口输出在调试中的稳定性。
+
+
+Issues about T-method speed measurement:
+- Issue 1: After the wheel stops, the output angular velocity does not return to 0 (it should be 0).
+- Issue 2: The steering/reversal waveform is abnormal; during direction changes, the waveform is not smooth.
+- Issue 3: Occasional glitches appear, where the value suddenly drops to 0. 
+
+
+关于T法测速的问题修改：
+- 问题1：轮胎停止后，输出的角速度不归0（应该是0）
+- 问题2：换向波形的异常，换向的时候，波形不是平滑的
+- 问题3：偶尔出现毛刺，突然变成0
+
