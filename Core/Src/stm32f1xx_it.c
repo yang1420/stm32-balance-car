@@ -56,7 +56,6 @@
 
 /* External variables --------------------------------------------------------*/
 extern ADC_HandleTypeDef hadc1;
-
 /* USER CODE BEGIN EV */
 extern __IO uint32_t ulTicks;
 /* USER CODE END EV */
