@@ -1,5 +1,7 @@
 #include "app_mpu6050.h"
-
+#include "task.h"
+#include "math.h"
+#include "q_math.h"
 static void reg_write(uint8_t reg, uint8_t value);
 static uint8_t reg_read(uint8_t reg);
 
@@ -7,7 +9,7 @@ extern I2C_HandleTypeDef hi2c1;
 static float ax, ay, az; // ax, ay, az are the acceleration values in the x, y, and z axes, respectively, in units of g (gravitational acceleration)
 static float temperature; // temperature value in degrees Celsius
 static float gx, gy, gz; // gyroscope values in the x, y, and z axes, respectively, in units of degrees per second
-
+static float roll, pitch, yaw; // roll, pitch, and yaw angles in degrees
 
 
 
@@ -26,10 +28,36 @@ void App_MPU6050_Init(void)
     reg_write(0x1c, 0x00); // Set the accelerometer range to ±2g
 
 }
+//@Summary: MPU6050 processing function, called in the main loop
+void App_MPU6050_Proc(void)
+{
+    // static uint32_t next = 0;
+    // if(HAL_GetTick() < next) {
+    //     return;
+    // }
+    PERIODIC(5);
+    App_MPU6050_Update();
+    //BY gyroscope to calculate euler angles
+    float yaw_g=yaw +gz*0.005;
+    float pitch_g=pitch +gx*0.005;
+    float roll_g=roll -gy*0.005;
+
+    //By accelerometer to calculate euler angles
+    
+    float pitch_a=qatan2(ay,az)/3.1415926f*180.0f;
+    float roll_a= qatan2(ax,az)/3.1415926f*180.0f;
+
+    //cto fuse gyroscope and accelerometer data
+    yaw=yaw_g;
+    pitch=0.95238*pitch_g+(1-0.95238)*pitch_a;
+    roll=0.95238*roll_g+(1-0.95238)*roll_a;
+    
+}
+
+
 //
 //@summary: Updates the MPU6050 data
 //
-
 void App_MPU6050_Update(void)
 {
     int16_t ax_raw = (int16_t)((reg_read(0x3b) << 8) | reg_read(0x3c));
@@ -83,6 +111,19 @@ float App_MPU6050_GetGy(void)
 float App_MPU6050_GetGz(void)
 {
     return gz;
+}
+
+float App_MPU6050_GetRoll(void)
+{
+    return roll;
+}
+float App_MPU6050_GetPitch(void)
+{
+    return pitch;
+}
+float App_MPU6050_GetYaw(void)
+{
+    return yaw;
 }
 
 

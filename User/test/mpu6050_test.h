@@ -12,6 +12,6 @@
 #include "main.h"
 
 void MPU6050_Test(void);
-
+void MPU6050_Euler_Test(void);
 
 #endif /* INC_MPU6050_TEST_H_ */

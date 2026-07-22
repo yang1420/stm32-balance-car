@@ -26,6 +26,7 @@
 #include "app_usart2.h"
 #include "app_button.h"
 #include "app_pwm.h"
+#include "app_mpu6050.h"
 #include "pwm_test.h"
 #include "encoder_test.h"
 #include "mpu6050_test.h"
@@ -126,12 +127,13 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  MPU6050_Test();
+  MPU6050_Euler_Test();
   while (1)
   {
     
     App_Bat_Proc();
     App_Button_Proc();
+    //App_MPU6050_Proc();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

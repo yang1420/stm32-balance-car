@@ -34,3 +34,20 @@ void MPU6050_Test(void)
 	}
 }
 
+void MPU6050_Euler_Test(void)
+{
+	App_MPU6050_Init();
+	
+	while(1)
+	{
+		App_MPU6050_Proc();
+
+		float roll = App_MPU6050_GetRoll();
+		float pitch = App_MPU6050_GetPitch();
+		float yaw = App_MPU6050_GetYaw();
+
+		App_USART2_Printf("%f,%f,%f\n", roll, pitch, yaw);
+
+		//Delay(10);
+	}
+}

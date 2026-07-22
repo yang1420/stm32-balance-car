@@ -60,6 +60,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     User/Src/app_encoder.c
     User/Src/app_mpu6050.c
     User/test/mpu6050_test.c
+    MyLib/Src/q_math.c
 )
 
 # Add include paths
