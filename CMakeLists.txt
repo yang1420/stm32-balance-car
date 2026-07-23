@@ -48,9 +48,9 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-    User/test/bat_test.c
-    User/test/pwm_test.c
-    User/test/encoder_test.c
+    # User/test/bat_test.c
+    #User/test/pwm_test.c
+    #User/test/encoder_test.c
     User/Src/app_bat.c
     User/Src/app_button.c
     User/Src/app_usart2.c
@@ -61,6 +61,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     User/Src/app_mpu6050.c
     User/test/mpu6050_test.c
     MyLib/Src/q_math.c
+    MyLib/Src/pid.c
+    User/Src/app_motor.c
 )
 
 # Add include paths

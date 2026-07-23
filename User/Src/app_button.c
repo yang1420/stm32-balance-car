@@ -2,6 +2,7 @@
 #include "app_pwm.h"
 #include "app_usart2.h"
 #include "main.h"
+#include "app_motor.h"
 
 #define BUTTON_DEBOUNCE_MS 20u
 
@@ -41,8 +42,9 @@ void App_Button_Proc(void)
             if (current_state == 0)
             {
                 pwm_on ^= 1;
-                App_PWM_Cmd(pwm_on);
-                App_USART2_Printf("button pressed, pwm=%u\r\n", pwm_on);
+                App_Motor_Cmd(pwm_on);
+                //App_PWM_Cmd(pwm_on);
+                //App_USART2_Printf("button pressed, pwm=%u\r\n", pwm_on);
             }
         }
     }

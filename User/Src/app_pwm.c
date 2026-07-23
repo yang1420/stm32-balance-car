@@ -59,6 +59,11 @@ void App_PWM_Set_L(float Duty)
 	}
 
 	uint16_t ccr = Duty / 100.0f * (999+1);
+	// Constrain ccr to be within 0 to 1000
+	if (ccr > 1000U)
+	{
+		ccr = 1000U;
+	}
 
 	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, ccr);
 
@@ -84,6 +89,11 @@ void App_PWM_Set_R(float Duty)
 	}
 
 	uint16_t ccr = Duty / 100.0f * (999+1);
+	// Constrain ccr to be within 0 to 1000
+	if (ccr > 1000U)
+	{
+		ccr = 1000U;
+	}
 
 	__HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, ccr);
 }
