@@ -21,15 +21,21 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "bat_test.h"
+
 #include "app_bat.h"
 #include "app_usart2.h"
 #include "app_button.h"
 #include "app_pwm.h"
 #include "app_mpu6050.h"
-#include "pwm_test.h"
-#include "encoder_test.h"
-#include "mpu6050_test.h"
+#include "app_encoder.h"
+#include "app_motor.h"
+#include "pid.h"
+#include "delay.h"
+#include "task.h"
+//#include "bat_test.h"
+//#include "pwm_test.h"
+//#include "encoder_test.h"
+//#include "mpu6050_test.h"
 
 /* USER CODE END Includes */
 
@@ -59,6 +65,8 @@ TIM_HandleTypeDef htim4;
 
 UART_HandleTypeDef huart2;
 
+static float target_Speed = 0.0f;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -72,13 +80,21 @@ static void MX_USART2_UART_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_I2C1_Init(void);
-/* USER CODE BEGIN PFP */
 
+
+/* USER CODE BEGIN PFP */
+static void USART2_Proc(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+static void USART2_Proc(void)
+{
+  PERIODIC(10); // 每隔10ms打印一次
+  float speed_l = App_Encoder_GetSpeed_L();
+  float speed_r = App_Encoder_GetSpeed_R();
+  App_USART2_Printf("%.3f,%.3f,%.3f\r\n", target_Speed, speed_l, speed_r);
+}
 /* USER CODE END 0 */
 
 /**
@@ -116,10 +132,14 @@ int main(void)
   MX_TIM4_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-  
-  App_Bat_Init(); 
   App_Button_Init();
-  App_PWM_Init();
+  App_Encoder_Init();
+  App_PWM_Init();//TB6612
+  App_Bat_Init();
+  App_Motor_Init();
+
+
+  
   
  
   /* USER CODE END 2 */
@@ -127,12 +147,18 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  MPU6050_Euler_Test();
+  //MPU6050_Euler_Test();
   while (1)
   {
-    
-    App_Bat_Proc();
+    target_Speed = (GetTick()/1000)%10 *2.0f;
+    App_Motor_SetSpeed_L(target_Speed);
+    App_Motor_SetSpeed_R(target_Speed);
     App_Button_Proc();
+    App_Bat_Proc();
+    App_Motor_Proc();
+    USART2_Proc();
+
+
     //App_MPU6050_Proc();
     /* USER CODE END WHILE */
 

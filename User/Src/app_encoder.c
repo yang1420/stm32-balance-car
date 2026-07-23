@@ -25,6 +25,7 @@ static float last_speed_l = 0.0f;
 //
 void App_Encoder_Init(void)
 {
+	
 }
 
 //
@@ -47,7 +48,7 @@ float App_Encoder_GetPos_R(void)
 	//然后/(30613.0f/1500.0f)是减速比，*360.0f是转成角度,所以对应的是右轮胎转的角度
 }
 
-//@简介：读取左轮胎旋转的角速度，使用的T法
+//@简介：读取左轮胎旋转的角速度，使用的T法,单位是弧度每秒，rad/s
 float App_Encoder_GetSpeed_L(void)
 {
 	__disable_irq();//关闭总中断，防止在读取t0_r和t1_r的时候发生中断，导致数据不一致
@@ -70,12 +71,12 @@ float App_Encoder_GetSpeed_L(void)
 		return last_speed_l;
 	} // 防止除以0
 
-	last_speed_l = direction_l_copy / (T * 1.0e-6f) / 22.0f / (30613.0f / 1500.0f) * 360.0f;
+	last_speed_l = direction_l_copy / (T * 1.0e-6f) / 22.0f / (30613.0f / 1500.0f) * 6.283185307f;
 	return last_speed_l;
 	
 }
 
-//@简介：读取右轮胎旋转的角速度，使用的T法
+//@简介：读取右轮胎旋转的角速度，使用的T法，单位是rad/s
 float App_Encoder_GetSpeed_R(void)
 {
 	__disable_irq();//关闭总中断，防止在读取t0_r和t1_r的时候发生中断，导致数据不一致
@@ -98,7 +99,7 @@ float App_Encoder_GetSpeed_R(void)
 	if(T == 0) {
 		return last_speed_r; // 防止除以0
 	}
-	last_speed_r = direction_r_copy / (T * 1.0e-6f) / 22.0f / (30613.0f / 1500.0f) * 360.0f;
+	last_speed_r = direction_r_copy / (T * 1.0e-6f) / 22.0f / (30613.0f / 1500.0f) * 6.283185307f;
 	return last_speed_r;
 }
 
