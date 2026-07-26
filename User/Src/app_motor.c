@@ -49,7 +49,7 @@ void App_Motor_Proc(void)
 void App_Motor_SetSpeed_L(float speed)
 {
     PID_ChangeSP(&pid_motor_l, speed);
-}
+} 
 //
 //@Summary: Set the speed of the right motor in rad/s
 // speed: desired speed in rad/s
