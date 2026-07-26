@@ -63,6 +63,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     MyLib/Src/q_math.c
     MyLib/Src/pid.c
     User/Src/app_motor.c
+    User/Src/app_control.c
 )
 
 # Add include paths

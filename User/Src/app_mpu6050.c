@@ -99,7 +99,10 @@ float App_MPU6050_GetTemperature(void)
 {
     return temperature;
 }
-
+//
+//@summary: Gets the gyroscope values in the x, y, and z axes
+// Units: degrees per second
+//
 float App_MPU6050_GetGx(void)
 {
     return gx;
@@ -112,7 +115,10 @@ float App_MPU6050_GetGz(void)
 {
     return gz;
 }
-
+//
+//@summary: Gets the roll, pitch, and yaw angles
+// Units: degrees
+//
 float App_MPU6050_GetRoll(void)
 {
     return roll;

@@ -32,6 +32,7 @@
 #include "pid.h"
 #include "delay.h"
 #include "task.h"
+#include "app_control.h"
 //#include "bat_test.h"
 //#include "pwm_test.h"
 //#include "encoder_test.h"
@@ -65,7 +66,6 @@ TIM_HandleTypeDef htim4;
 
 UART_HandleTypeDef huart2;
 
-static float target_Speed = 0.0f;
 
 /* USER CODE BEGIN PV */
 
@@ -83,18 +83,12 @@ static void MX_I2C1_Init(void);
 
 
 /* USER CODE BEGIN PFP */
-static void USART2_Proc(void);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static void USART2_Proc(void)
-{
-  PERIODIC(10); // 每隔10ms打印一次
-  float speed_l = App_Encoder_GetSpeed_L();
-  float speed_r = App_Encoder_GetSpeed_R();
-  App_USART2_Printf("%.3f,%.3f,%.3f\r\n", target_Speed, speed_l, speed_r);
-}
+
 /* USER CODE END 0 */
 
 /**
@@ -137,6 +131,9 @@ int main(void)
   App_PWM_Init();//TB6612
   App_Bat_Init();
   App_Motor_Init();
+  App_MPU6050_Init();
+  App_Control_Init();
+ 
 
 
   
@@ -150,13 +147,13 @@ int main(void)
   //MPU6050_Euler_Test();
   while (1)
   {
-    target_Speed = (GetTick()/1000)%10 *2.0f;
-    App_Motor_SetSpeed_L(target_Speed);
-    App_Motor_SetSpeed_R(target_Speed);
+   
+
     App_Button_Proc();
     App_Bat_Proc();
     App_Motor_Proc();
-    USART2_Proc();
+    App_MPU6050_Proc();
+    App_Control_Proc();
 
 
     //App_MPU6050_Proc();
