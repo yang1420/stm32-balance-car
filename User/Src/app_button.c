@@ -3,6 +3,7 @@
 #include "app_usart2.h"
 #include "main.h"
 #include "app_motor.h"
+#include "app_control.h"
 
 #define BUTTON_DEBOUNCE_MS 20u
 
@@ -35,13 +36,20 @@ void App_Button_Proc(void)
     if (current_state != last_state)
     {
         if (now - last_change_time >= BUTTON_DEBOUNCE_MS)
-        {
+        {   
             last_state = current_state;
             last_change_time = now;
 
             if (current_state == 0)
             {
                 pwm_on ^= 1;
+                if (pwm_on)
+                {
+                    App_Control_Reset(); // 重新使能电机前，先清空控制环的PID状态
+                    //把电机也复位
+                    App_Motor_SetSpeed_L(0);
+                    App_Motor_SetSpeed_R(0);
+                }
                 App_Motor_Cmd(pwm_on);
                 //App_PWM_Cmd(pwm_on);
                 //App_USART2_Printf("button pressed, pwm=%u\r\n", pwm_on);
