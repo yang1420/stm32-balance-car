@@ -8,7 +8,8 @@
 #include "app_encoder.h"
 static PID_TypeDef pid_velocity;// PID for velocity control
 static PID_TypeDef pid_theta;// PID for angle control
-static PID_TypeDef pid_theta_dot;// PID for angular velocity control
+static PID_TypeDef pid_theta_dot;// PID for angular velocity controlst
+static PID_TypeDef pid_turn;// PID for turning control
 
 
 static const float l=0.062f; // Length of the pendulum in meters
@@ -29,6 +30,8 @@ void App_Control_Init(void)
     PID_Init(&pid_theta_dot, 20.0f, 20.0f, 0.0f);
     PID_SetOutputLimits(&pid_theta_dot, -125.7f, 125.7f); // Limit output to -40π to 40π radians
 
+    PID_Init(&pid_turn, 1.0f, 0.0f, 0.0f);
+    PID_SetOutputLimits(&pid_turn, -15.0f, 15.0f); // Limit output to -4π to 4π radians
 }
 
 
@@ -91,9 +94,12 @@ void App_Control_Proc(void)
     if (omega_ref < -20.0f) omega_ref = -20.0f;
     last_time = current_time;
 
+    float gz = App_MPU6050_GetGz()*3.1415926f/180.0f; // Convert degrees/s to radians/s
+    float omega_diff =PID_Compute(&pid_turn, gz); // PID for turning control
+
     //设置电机的转速, Set the motor speed
-    App_Motor_SetSpeed_L(omega_ref);
-    App_Motor_SetSpeed_R(omega_ref);
+    App_Motor_SetSpeed_L(omega_ref + omega_diff);
+    App_Motor_SetSpeed_R(omega_ref - omega_diff);
 
 
 }
@@ -114,7 +120,8 @@ void App_Control_SetMoveSpeed(float speed)
 {
     PID_ChangeSP(&pid_velocity, speed); // Set desired velocity
 }
+//@Set the balance car turn speed, in rad/s， the maximum speed is 15rad/s
 void App_Control_SetTurnSpeed(float speed)
 {
-
+    PID_ChangeSP(&pid_turn, speed); // Set desired turn speed
 }

@@ -36,7 +36,7 @@ void App_Remote_Control_Proc(void)
             {
                 // Successfully parsed turnSpeed and moveSpeed
                 App_Control_SetMoveSpeed(-moveSpeed*0.01f*0.7f);//because the movveSpeed is from -100 to 100
-                
+                App_Control_SetTurnSpeed(-turnSpeed*0.01f*15.0f);//because the turnSpeed is from -100 to 100
             }
         }
 
