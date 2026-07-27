@@ -33,6 +33,7 @@
 #include "delay.h"
 #include "task.h"
 #include "app_control.h"
+#include "app_remote_control.h"
 //#include "bat_test.h"
 //#include "pwm_test.h"
 //#include "encoder_test.h"
@@ -65,7 +66,7 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim4;
 
 UART_HandleTypeDef huart2;
-
+UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 
@@ -80,8 +81,7 @@ static void MX_USART2_UART_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_I2C1_Init(void);
-
-
+static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -125,6 +125,7 @@ int main(void)
   MX_TIM1_Init();
   MX_TIM4_Init();
   MX_I2C1_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
   App_Button_Init();
   App_Encoder_Init();
@@ -133,6 +134,7 @@ int main(void)
   App_Motor_Init();
   App_MPU6050_Init();
   App_Control_Init();
+  App_Remote_Control_Init();
  
 
 
@@ -154,6 +156,7 @@ int main(void)
     App_Motor_Proc();
     App_MPU6050_Proc();
     App_Control_Proc();
+    App_Remote_Control_Proc();
 
 
     //App_MPU6050_Proc();
@@ -505,6 +508,39 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
+  * @brief USART3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART3_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART3_Init 0 */
+
+  /* USER CODE END USART3_Init 0 */
+
+  /* USER CODE BEGIN USART3_Init 1 */
+
+  /* USER CODE END USART3_Init 1 */
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 9600;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART3_Init 2 */
+
+  /* USER CODE END USART3_Init 2 */
 
 }
 

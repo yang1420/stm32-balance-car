@@ -64,6 +64,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     MyLib/Src/pid.c
     User/Src/app_motor.c
     User/Src/app_control.c
+    User/Src/app_remote_control.c
 )
 
 # Add include paths
