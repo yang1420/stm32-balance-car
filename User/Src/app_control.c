@@ -8,7 +8,8 @@
 #include "app_encoder.h"
 static PID_TypeDef pid_velocity;// PID for velocity control
 static PID_TypeDef pid_theta;// PID for angle control
-static PID_TypeDef pid_theta_dot;// PID for angular velocity control
+static PID_TypeDef pid_theta_dot;// PID for angular velocity controlst
+static PID_TypeDef pid_turn;// PID for turning control
 
 
 static const float l=0.062f; // Length of the pendulum in meters
@@ -29,6 +30,8 @@ void App_Control_Init(void)
     PID_Init(&pid_theta_dot, 20.0f, 20.0f, 0.0f);
     PID_SetOutputLimits(&pid_theta_dot, -125.7f, 125.7f); // Limit output to -40π to 40π radians
 
+    PID_Init(&pid_turn, 1.0f, 0.0f, 0.0f);
+    PID_SetOutputLimits(&pid_turn, -15.0f, 15.0f); // Limit output to -4π to 4π radians
 }
 
 
@@ -41,7 +44,7 @@ void App_Control_Proc(void)
    计算速度环：calculate the velocity loop:
 */
     // Set the desired velocity 
-    PID_ChangeSP(&pid_velocity, 0.0f); // Set desired velocity
+    //PID_ChangeSP(&pid_velocity, 0.0f); // Set desired velocity
     //read the current velocity from the encoder
     float current_omega = (App_Encoder_GetSpeed_L() + App_Encoder_GetSpeed_R()) / 2.0f; // Average speed of both wheels, in rad/s
     //计算速度环的反馈：需要算出w1，用w-w2，但是需要用到current_theta和current_theta_dot
@@ -87,13 +90,16 @@ void App_Control_Proc(void)
     if (last_time != 0) {
         omega_ref += (1.0f/r) * x_dot_dot_ref * dt; // Integrating acceleration to get speed
     }
-    if (omega_ref > 40.0f)  omega_ref = 40.0f;
-    if (omega_ref < -40.0f) omega_ref = -40.0f;
+    if (omega_ref > 20.0f)  omega_ref = 20.0f;
+    if (omega_ref < -20.0f) omega_ref = -20.0f;
     last_time = current_time;
 
+    float gz = App_MPU6050_GetGz()*3.1415926f/180.0f; // Convert degrees/s to radians/s
+    float omega_diff =PID_Compute(&pid_turn, gz); // PID for turning control
+
     //设置电机的转速, Set the motor speed
-    App_Motor_SetSpeed_L(omega_ref);
-    App_Motor_SetSpeed_R(omega_ref);
+    App_Motor_SetSpeed_L(omega_ref + omega_diff);
+    App_Motor_SetSpeed_R(omega_ref - omega_diff);
 
 
 }
@@ -106,4 +112,16 @@ void App_Control_Reset(void)
     PID_Reset(&pid_velocity);
     PID_Reset(&pid_theta);
     PID_Reset(&pid_theta_dot);
+}
+//
+//@Set the balance car move speed, in m/s， the maximum speed is 0.7m/s
+//
+void App_Control_SetMoveSpeed(float speed)
+{
+    PID_ChangeSP(&pid_velocity, speed); // Set desired velocity
+}
+//@Set the balance car turn speed, in rad/s， the maximum speed is 15rad/s
+void App_Control_SetTurnSpeed(float speed)
+{
+    PID_ChangeSP(&pid_turn, speed); // Set desired turn speed
 }
