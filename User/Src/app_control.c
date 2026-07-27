@@ -41,7 +41,7 @@ void App_Control_Proc(void)
    计算速度环：calculate the velocity loop:
 */
     // Set the desired velocity 
-    PID_ChangeSP(&pid_velocity, 0.0f); // Set desired velocity
+    //PID_ChangeSP(&pid_velocity, 0.0f); // Set desired velocity
     //read the current velocity from the encoder
     float current_omega = (App_Encoder_GetSpeed_L() + App_Encoder_GetSpeed_R()) / 2.0f; // Average speed of both wheels, in rad/s
     //计算速度环的反馈：需要算出w1，用w-w2，但是需要用到current_theta和current_theta_dot
@@ -87,8 +87,8 @@ void App_Control_Proc(void)
     if (last_time != 0) {
         omega_ref += (1.0f/r) * x_dot_dot_ref * dt; // Integrating acceleration to get speed
     }
-    if (omega_ref > 40.0f)  omega_ref = 40.0f;
-    if (omega_ref < -40.0f) omega_ref = -40.0f;
+    if (omega_ref > 20.0f)  omega_ref = 20.0f;
+    if (omega_ref < -20.0f) omega_ref = -20.0f;
     last_time = current_time;
 
     //设置电机的转速, Set the motor speed
@@ -106,4 +106,15 @@ void App_Control_Reset(void)
     PID_Reset(&pid_velocity);
     PID_Reset(&pid_theta);
     PID_Reset(&pid_theta_dot);
+}
+//
+//@Set the balance car move speed, in m/s， the maximum speed is 0.7m/s
+//
+void App_Control_SetMoveSpeed(float speed)
+{
+    PID_ChangeSP(&pid_velocity, speed); // Set desired velocity
+}
+void App_Control_SetTurnSpeed(float speed)
+{
+
 }

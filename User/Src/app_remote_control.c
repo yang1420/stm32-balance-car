@@ -1,6 +1,7 @@
 #include "app_remote_control.h"
 #include <string.h>
 #include <stdio.h>
+#include "app_control.h"
 
 #define REMOTE_CONTROL_BUF_SIZE 64
 
@@ -34,6 +35,7 @@ void App_Remote_Control_Proc(void)
             if (sscanf(procBuf, "move %d %d", &turnSpeed, &moveSpeed) == 2)
             {
                 // Successfully parsed turnSpeed and moveSpeed
+                App_Control_SetMoveSpeed(-moveSpeed*0.01f*0.7f);//because the movveSpeed is from -100 to 100
                 
             }
         }
